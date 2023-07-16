@@ -6,7 +6,7 @@ Examples of a Python script and a PySpark script within AWS Glue, each implement
 
 Python Glue Script Example:
 
-
+''' python
 import sys
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
@@ -38,7 +38,7 @@ glueContext.write_dynamic_frame.from_options(frame = transformed_data, connectio
 
 job.commit()
 PySpark Glue Script Example:
-
+'''
 python
 Copy code
 import sys
