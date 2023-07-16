@@ -6,7 +6,7 @@ Examples of a Python script and a PySpark script within AWS Glue, each implement
 
 Python Glue Script Example:
 
-''' python
+~~~ 
 import sys
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
@@ -37,10 +37,10 @@ transformed_data = input_data.map(transform = process_data)
 glueContext.write_dynamic_frame.from_options(frame = transformed_data, connection_type = "s3", connection_options = {"path": "s3://your_bucket/your_output_path"})
 
 job.commit()
+~~~
 PySpark Glue Script Example:
-'''
-python
-Copy code
+
+~~~
 import sys
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
@@ -67,18 +67,15 @@ transformed_data = input_data.rdd.map(process_data).toDF()
 transformed_data.write.mode("overwrite").saveAsTable("your_database.your_output_table")
 
 sc.stop()
+~~~
+
 To trigger the execution of the Glue scripts, you can set up a trigger based on various events. For example, using AWS Glue console, you can create a trigger to execute the script on a schedule (e.g., daily, hourly) or based on specific events like data arrival in an S3 bucket. You can configure the trigger settings and associate it with the Glue job to automate the execution based on your requirements.
 
 Note: Replace "your_database", "your_table", "your_output_path", and "your_bucket" with the actual names and paths specific to your use case.
 
 
-
-
-
-User
-example of iam role, policy and related scripts
 ChatGPT
-Certainly! Here's an example of an IAM role, a corresponding IAM policy, and sample scripts that demonstrate the usage of the IAM role for accessing AWS services:
+An example of an IAM role, a corresponding IAM policy, and sample scripts that demonstrate the usage of the IAM role for accessing AWS services:
 
 IAM Role Example:
 IAM Role Name: MyEC2Role
@@ -89,9 +86,7 @@ IAM Policy Name: MyS3AccessPolicy
 IAM Policy Description: Allows read-only access to an S3 bucket.
 
 IAM Policy JSON:
-
-json
-Copy code
+~~~
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -102,11 +97,11 @@ Copy code
         }
     ]
 }
+~~~
 Python Script Example:
 Assuming the EC2 instance has the IAM role assigned, you can use the AWS SDK for Python (Boto3) to access S3 using the IAM role's permissions.
 
-python
-Copy code
+~~~
 import boto3
 
 # Create a session with the IAM role credentials
@@ -122,24 +117,22 @@ response = s3_client.list_objects_v2(Bucket=bucket_name)
 # Process the response
 for object in response['Contents']:
     print(object['Key'])
+~~~
 AWS CLI Script Example:
 If you have the AWS Command Line Interface (CLI) installed, you can use the IAM role's permissions to interact with S3.
+~~~
+#bash
 
-bash
-Copy code
 # Configure the AWS CLI with the IAM role credentials
 aws configure
 
 # Example: List objects in an S3 bucket
 bucket_name='your-bucket'
 aws s3 ls s3://$bucket_name/
+~~~
 In both examples, the IAM role assigned to the EC2 instance provides read-only access to the specified S3 bucket. You can customize the IAM policy and IAM role to grant different permissions as per your requirements. The Python script demonstrates the usage of the Boto3 library to interact with AWS services using the IAM role's credentials, while the AWS CLI script shows how to configure and use the CLI with the IAM role.
 
 Remember to replace "your-bucket" with the actual name of your S3 bucket.
-
-
-
-
 
 User
 what other services use scripts in aws
@@ -184,8 +177,7 @@ Certainly! Here are examples of Python scripts for AWS Lambda, AWS Glue ETL, and
 AWS Lambda Python Script Example:
 This example demonstrates a simple AWS Lambda function written in Python. It retrieves a parameter value from AWS Systems Manager Parameter Store.
 
-python
-Copy code
+~~~
 import boto3
 
 def lambda_handler(event, context):
@@ -201,11 +193,11 @@ def lambda_handler(event, context):
     return {
         'parameter_value': parameter_value
     }
+~~~
 AWS Glue ETL Python Script Example:
 This example demonstrates a simple AWS Glue ETL script written in Python. It reads data from an S3 bucket, applies a transformation, and writes the transformed data to another S3 bucket.
 
-python
-Copy code
+~~~
 import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
@@ -239,11 +231,11 @@ glueContext.write_dynamic_frame.from_catalog(
 )
 
 job.commit()
+~~~
 AWS Step Functions Python Script Example:
 This example demonstrates a simple AWS Step Functions state machine written in Python. It defines a sequence of states to execute.
 
-python
-Copy code
+~~~
 import boto3
 
 # Create a Step Functions client
@@ -273,4 +265,5 @@ state_machine_arn = stepfunctions_client.create_state_machine(
 execution_arn = stepfunctions_client.start_execution(
     stateMachineArn=state_machine_arn
 )['executionArn']
+~~~
 These examples provide a starting point for AWS Lambda, AWS Glue ETL, and AWS Step Functions Python scripting. You can customize the scripts based on your specific requirements and use cases.
