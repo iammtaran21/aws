@@ -28,13 +28,13 @@ def process_data(record):
     return transformed_record
 
 # Read input data
-input_data = glueContext.create_dynamic_frame.from_catalog(database = "your_database", table_name = "your_table")
+input_data = glueContext.create_dynamic_frame.from_catalog(database = "db_name", table_name = "table_name")
 
 # Apply logic to each record
 transformed_data = input_data.map(transform = process_data)
 
 # Write transformed data to output location
-glueContext.write_dynamic_frame.from_options(frame = transformed_data, connection_type = "s3", connection_options = {"path": "s3://your_bucket/your_output_path"})
+glueContext.write_dynamic_frame.from_options(frame = transformed_data, connection_type = "s3", connection_options = {"path": "s3://bucket_name/output_path"})
 
 job.commit()
 ~~~
@@ -58,20 +58,20 @@ def process_data(record):
     return transformed_record
 
 # Read input data
-input_data = spark.read.table("your_database.your_table")
+input_data = spark.read.table("db_name.table_name")
 
 # Apply logic to each record
 transformed_data = input_data.rdd.map(process_data).toDF()
 
 # Write transformed data to output location
-transformed_data.write.mode("overwrite").saveAsTable("your_database.your_output_table")
+transformed_data.write.mode("overwrite").saveAsTable("db_name.output_table")
 
 sc.stop()
 ~~~
 
 To trigger the execution of the Glue scripts, you can set up a trigger based on various events. For example, using AWS Glue console, you can create a trigger to execute the script on a schedule (e.g., daily, hourly) or based on specific events like data arrival in an S3 bucket. You can configure the trigger settings and associate it with the Glue job to automate the execution based on your requirements.
 
-Note: Replace "your_database", "your_table", "your_output_path", and "your_bucket" with the actual names and paths specific to your use case.
+Note: Replace "database", "table", "output_path", and "bucket" with the actual names and paths specific to your use case.
 
 
 ChatGPT
@@ -93,7 +93,7 @@ IAM Policy JSON:
         {
             "Effect": "Allow",
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::your-bucket/*"
+            "Resource": "arn:aws:s3:::bucket_name/*"
         }
     ]
 }
@@ -111,7 +111,7 @@ session = boto3.Session()
 s3_client = session.client('s3')
 
 # Example: List objects in an S3 bucket
-bucket_name = 'your-bucket'
+bucket_name = 'bucket'
 response = s3_client.list_objects_v2(Bucket=bucket_name)
 
 # Process the response
@@ -127,12 +127,12 @@ If you have the AWS Command Line Interface (CLI) installed, you can use the IAM 
 aws configure
 
 # Example: List objects in an S3 bucket
-bucket_name='your-bucket'
+bucket_name='bucket'
 aws s3 ls s3://$bucket_name/
 ~~~
 In both examples, the IAM role assigned to the EC2 instance provides read-only access to the specified S3 bucket. You can customize the IAM policy and IAM role to grant different permissions as per your requirements. The Python script demonstrates the usage of the Boto3 library to interact with AWS services using the IAM role's credentials, while the AWS CLI script shows how to configure and use the CLI with the IAM role.
 
-Remember to replace "your-bucket" with the actual name of your S3 bucket.
+Remember to replace "bucket" with the actual name of your S3 bucket.
 
 User
 what other services use scripts in aws
