@@ -179,20 +179,47 @@ This example demonstrates a simple AWS Lambda function written in Python. It ret
 
 ~~~
 import boto3
+import json
 
 def lambda_handler(event, context):
-    # Create an SSM client
-    ssm_client = boto3.client('ssm')
+    # Extract data from the event
+    order_data = json.loads(event['body'])
+    customer_id = order_data['customer_id']
+    order_items = order_data['order_items']
 
-    # Retrieve a parameter value from Parameter Store
-    parameter_name = '/my-parameter'
-    response = ssm_client.get_parameter(Name=parameter_name, WithDecryption=True)
-    parameter_value = response['Parameter']['Value']
+    # Perform some business logic or processing
+    total_amount = calculate_total_amount(order_items)
 
-    # Return the parameter value
-    return {
-        'parameter_value': parameter_value
+    # Save the order details to a database
+    save_order_to_database(customer_id, order_items, total_amount)
+
+    # Send a notification to the customer
+    send_notification(customer_id, total_amount)
+
+    # Return a response
+    response = {
+        'statusCode': 200,
+        'body': 'Order processed successfully!'
     }
+    return response
+
+def calculate_total_amount(order_items):
+    # Perform calculation logic
+    total = 0
+    for item in order_items:
+        total += item['price'] * item['quantity']
+    return total
+
+def save_order_to_database(customer_id, order_items, total_amount):
+    # Save order details to a database (e.g., DynamoDB or RDS)
+    # Implementation code goes here
+    pass
+
+def send_notification(customer_id, total_amount):
+    # Send a notification to the customer (e.g., via email or SMS)
+    # Implementation code goes here
+    pass
+
 ~~~
 AWS Glue ETL Python Script Example:
 This example demonstrates a simple AWS Glue ETL script written in Python. It reads data from an S3 bucket, applies a transformation, and writes the transformed data to another S3 bucket.
@@ -243,12 +270,22 @@ stepfunctions_client = boto3.client('stepfunctions')
 
 # Define the state machine definition
 state_machine_definition = {
-    "Comment": "A Hello World example of the Amazon States Language using a Pass state",
-    "StartAt": "HelloWorld",
+    "Comment": "An example state machine for order processing",
+    "StartAt": "ProcessOrder",
     "States": {
-        "HelloWorld": {
-            "Type": "Pass",
-            "Result": "Hello, World!",
+        "ProcessOrder": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:ProcessOrderFunction",
+            "End": True
+        },
+        "NotifyCustomer": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:NotifyCustomerFunction",
+            "End": True
+        },
+        "HandleError": {
+            "Type": "Fail",
+            "Cause": "An error occurred while processing the order",
             "End": True
         }
     }
@@ -256,14 +293,16 @@ state_machine_definition = {
 
 # Create the Step Functions state machine
 state_machine_arn = stepfunctions_client.create_state_machine(
-    name='HelloWorldStateMachine',
+    name='OrderProcessingStateMachine',
     definition=state_machine_definition,
     roleArn='arn:aws:iam::123456789012:role/MyStepFunctionsRole'
 )['stateMachineArn']
 
 # Start the Step Functions state machine execution
 execution_arn = stepfunctions_client.start_execution(
-    stateMachineArn=state_machine_arn
+    stateMachineArn=state_machine_arn,
+    name='Order123'
 )['executionArn']
+
 ~~~
 These examples provide a starting point for AWS Lambda, AWS Glue ETL, and AWS Step Functions Python scripting. You can customize the scripts based on your specific requirements and use cases.
